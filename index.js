@@ -24,6 +24,10 @@ app.get("/", (req, res) => {
 
 app.use("/breads", breadsController)
 
+// Baker
+const bakersController = require("./controllers/bakers_controller")
+app.use("/bakers", bakersController)
+
 app.get("*", (req, res) => {
     res.send("404")
 })

@@ -1,34 +1,51 @@
 const express = require("express")
 const breads = express.Router()
 const Bread = require("../models/bread")
+const Baker = require("../models/baker")
 
-breads.get("/", (req, res) => {
-    Bread.find()
+// Index:
+breads.get('/', (req, res) => {
+    Baker.find()
+      .then(foundBakers => {
+        Bread.find()
         .then(foundBreads => {
-            res.render("Index", {
+            res.render('index', {
                 breads: foundBreads,
-                title: "Index Page"
+                bakers: foundBakers,
+                title: 'Index Page'
             })
         })
+      })
+  })
 
-})
-
-breads.get("/new", (req, res) => {
-    res.render("New")
+breads.get("/new", async (req, res) => {
+    try {
+        const foundBakers = await Baker.find()
+        res.render("New", {
+            bakers: foundBakers
+        })
+    } catch (err) {
+        res.send("ERROR")
+    }
 })
 
 // EDIT
-breads.get("/:arrayIndex/edit", (req, res) => {
-    Bread.findById(req.params.arrayIndex)
-        .then(foundBread => {
-            res.render("Edit", {
-                bread: foundBread
+breads.get('/:id/edit', (req, res) => {
+    Baker.find()
+      .then(foundBakers => {
+          Bread.findById(req.params.id)
+            .then(foundBread => {
+              res.render('Edit', {
+                  bread: foundBread, 
+                  bakers: foundBakers 
+              })
             })
-        })
+      })
 })
 
 breads.get("/:arrayIndex", (req, res) => {
     Bread.findById(req.params.arrayIndex)
+        .populate("baker")
         .then(foundBread => {
             res.render("Show", {
                 bread: foundBread
@@ -49,6 +66,7 @@ breads.post("/", (req, res) => {
     } else {
         req.body.hasGluten = false
     }
+    console.log("req.body: " + req.body)
     Bread.create(req.body)
     res.redirect("/breads")
 })
