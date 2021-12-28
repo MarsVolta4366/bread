@@ -4,19 +4,19 @@ const Bread = require("../models/bread")
 const Baker = require("../models/baker")
 
 // Index:
-breads.get('/', (req, res) => {
-    Baker.find()
-      .then(foundBakers => {
-        Bread.find()
-        .then(foundBreads => {
-            res.render('index', {
-                breads: foundBreads,
-                bakers: foundBakers,
-                title: 'Index Page'
-            })
-        })
-      })
-  })
+breads.get('/', async (req, res) => {
+    // .limit(10) means only the first 10 breads will be returned
+    // .lean() converts to a plain js object which means no access to custom helper methods or virtuals
+    // .lean() saves memory
+    const foundBakers = await Baker.find().lean()
+    const foundBreads = await Bread.find().limit(10).lean()
+
+    res.render('index', {
+        breads: foundBreads,
+        bakers: foundBakers,
+        title: 'Index Page'
+    })
+})
 
 breads.get("/new", async (req, res) => {
     try {

@@ -24,12 +24,35 @@ baker.get("/data/seed", async (req, res) => {
 // Show: 
 baker.get('/:id', (req, res) => {
     Baker.findById(req.params.id)
-        .populate('breads')
+        .populate({
+            path: "breads",
+            options: {limit: 5}
+        })
         .then(foundBaker => {
             res.render('bakerShow', {
                 baker: foundBaker
             })
         })
+})
+
+// DELETE
+// baker.delete("/:id", (req, res) => {
+//     Baker.findByIdAndDelete(req.params.id)
+//         .then(deletedBaker => {
+//             console.log("Deleted baker: " + deletedBaker)
+//             res.status(303).redirect("/breads")
+//         })
+// })
+
+// ASYNC DELETE
+baker.delete("/:id", async (req, res) => {
+    try {
+        await Baker.findByIdAndDelete(req.params.id)
+        res.status(303).redirect("/breads")
+    } catch(err) {
+        console.log(err)
+        res.send("ERROR")
+    }
 })
 
 module.exports = baker
